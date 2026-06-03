@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>chatApp</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Ccircle cx='22' cy='22' r='20' fill='%2307111a' stroke='%23ff686f' stroke-width='3'/%3E%3Cpath d='M7 23h7l4-10 6 22 5-18 3 6h7' fill='none' stroke='%2335e0ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="panel sidebar" aria-label="Room controls">
+      <header class="brand-row">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 44 44" role="img">
+            <circle cx="22" cy="22" r="20"></circle>
+            <path d="M7 23h7l4-10 6 22 5-18 3 6h7"></path>
+          </svg>
+        </span>
+        <span class="brand-name">chat<span>App</span></span>
+      </header>
+
+      <div class="connection-row" role="status" aria-live="polite">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="connectionText">Waiting for room</span>
+      </div>
+
+      <form class="room-form" id="roomForm">
+        <h1>Create or join</h1>
+        <label for="roomIdInput">Room ID</label>
+        <div class="input-shell">
+          <input id="roomIdInput" name="roomId" type="text" autocomplete="off" placeholder="e.g. dev-room-42" required>
+          <span aria-hidden="true">#</span>
+        </div>
+
+        <label for="senderInput">Your name</label>
+        <div class="input-shell">
+          <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 21a8 8 0 0 0-16 0"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <input id="senderInput" name="sender" type="text" autocomplete="name" placeholder="Alex Dev" required>
+        </div>
+
+        <button class="primary-button" id="createRoomButton" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+          Create room
+        </button>
+        <button class="ghost-button" id="joinRoomButton" type="submit">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"></path></svg>
+          Join room
+        </button>
+      </form>
+
+      <section class="rooms-section">
+        <div class="section-heading">
+          <h2>Rooms</h2>
+          <span id="roomCount">0</span>
+        </div>
+        <div class="room-list" id="roomList" role="list"></div>
+      </section>
+
+      <footer class="profile-card">
+        <span class="avatar" id="profileAvatar">AD</span>
+        <span>
+          <strong id="profileName">Alex Dev</strong>
+          <small id="profileMeta">Ready to connect</small>
+        </span>
+        <button class="icon-button" id="saveProfileButton" type="button" aria-label="Save profile">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M17 21v-8H7v8M7 3v5h8"></path></svg>
+        </button>
+      </footer>
+    </aside>
+
+    <main class="panel chat-panel" aria-label="Live room">
+      <header class="chat-header">
+        <div class="room-title">
+          <span class="hash-mark">#</span>
+          <div>
+            <h2 id="activeRoomTitle">Live room</h2>
+            <p id="activeRoomSubtitle">Choose a room to load Message history</p>
+          </div>
+        </div>
+        <div class="chat-actions">
+          <span class="live-pill" id="livePill">Waiting for room</span>
+          <button class="icon-button" id="copyRoomButton" type="button" aria-label="Copy room ID">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 16H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z"></path><path d="M8 20h10a2 2 0 0 0 2-2V8"></path></svg>
+          </button>
+          <button class="icon-button" id="reconnectButton" type="button" aria-label="Reconnect websocket">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.3 6.4L3 16"></path><path d="M3 21v-5h5"></path><path d="M3 12A9 9 0 0 1 18.3 5.6L21 8"></path><path d="M21 3v5h-5"></path></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="history-divider">
+        <span></span>
+        <strong>Message history</strong>
+        <span></span>
+      </div>
+
+      <section class="messages" id="messageList" aria-live="polite" aria-label="Message history"></section>
+
+      <form class="composer" id="messageForm">
+        <textarea id="messageInput" rows="3" maxlength="2000" placeholder="Type a message" aria-label="Type a message" disabled></textarea>
+        <div class="composer-footer">
+          <div class="tool-buttons" aria-label="Composer tools">
+            <button type="button" class="icon-button" id="codeButton" aria-label="Insert code formatting">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"></path></svg>
+            </button>
+            <button type="button" class="icon-button" id="topicButton" aria-label="Insert topic marker">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h16M3 15h16M8 3 6 21M18 3l-2 18"></path></svg>
+            </button>
+            <button type="button" class="icon-button" id="clearDraftButton" aria-label="Clear draft">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 16h10l1-16"></path></svg>
+            </button>
+          </div>
+          <div class="send-cluster">
+            <span id="charCount">0 / 2000</span>
+            <button class="send-button" id="sendButton" type="submit" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
+              Send
+            </button>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    <aside class="panel details-panel" aria-label="Room details">
+      <section class="details-section">
+        <h2>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Room details
+        </h2>
+        <dl class="detail-list">
+          <div><dt>Room ID</dt><dd id="detailRoomId">-</dd></div>
+          <div><dt>Created by</dt><dd id="detailCreatedBy">-</dd></div>
+          <div><dt>Created at</dt><dd id="detailCreatedAt">-</dd></div>
+          <div><dt>Members</dt><dd id="detailMembers">0</dd></div>
+        </dl>
+      </section>
+
+      <section class="details-section tips-section">
+        <h2>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 22h4M15.09 14c.18-1.06.82-1.91 1.64-2.66A6 6 0 1 0 7.27 11.34c.82.75 1.46 1.6 1.64 2.66"></path></svg>
+          Quick tips
+        </h2>
+        <ul>
+          <li><span>&lt;/&gt;</span>Use code formatting with <code>`code`</code> for readability.</li>
+          <li><span>#</span>Mention a topic with #topic to keep discussions organized.</li>
+          <li><span>!</span>Create a room before joining if your ID is brand new.</li>
+        </ul>
+      </section>
+
+      <section class="details-section">
+        <h2>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>
+          Recent activity
+        </h2>
+        <ol class="activity-list" id="activityList"></ol>
+      </section>
+
+      <div class="socket-card">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01"></path></svg>
+        <span>
+          <strong>Realtime via WebSocket</strong>
+          <small>Messages are delivered instantly.</small>
+        </span>
+      </div>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
