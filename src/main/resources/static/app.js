@@ -1,4 +1,5 @@
-const apiBase = window.location.protocol === "file:" ? "http://localhost:8080" : window.location.origin;
+const backendOrigin = "http://localhost:8080";
+const apiBase = window.location.port === "8080" ? window.location.origin : backendOrigin;
 
 const els = {
   roomForm: document.querySelector("#roomForm"),
@@ -35,13 +36,7 @@ const els = {
   toast: document.querySelector("#toast")
 };
 
-const seedRooms = [
-  { id: "backend-sync", live: true, members: 4, createdBy: "Alex Dev", createdAt: "2025-05-22T09:41:00" },
-  { id: "api-design", live: false, members: 3 },
-  { id: "frontend-chat", live: true, members: 5 },
-  { id: "dev-ops", live: false, members: 2 },
-  { id: "random", live: false, members: 1 }
-];
+const seedRooms = [];
 
 const sampleMessages = [
   {
@@ -601,7 +596,7 @@ els.clearDraftButton.addEventListener("click", () => {
 window.addEventListener("beforeunload", disconnectSocket);
 
 els.senderInput.value = state.sender;
-els.roomIdInput.value = "backend-sync";
+els.roomIdInput.value = "";
 updateProfile();
 renderRooms();
 renderActivity();
