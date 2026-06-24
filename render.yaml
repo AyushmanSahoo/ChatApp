@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: chat-app
+    runtime: docker
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
